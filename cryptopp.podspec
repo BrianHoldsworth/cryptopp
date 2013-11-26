@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "cryptopp"
-  s.version      = "1.0.0"
+  s.version      = "1.0.1"
   s.summary      = "Mirror of the Crypto++ library adapted for CocoaPods"
 
   s.description  = <<-DESC
