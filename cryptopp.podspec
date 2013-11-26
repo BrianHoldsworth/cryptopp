@@ -38,8 +38,8 @@ Pod::Spec.new do |s|
   # s.platform     = :ios, '5.0'
 
   #  When using multiple platforms
-  # s.ios.deployment_target = '5.0'
-  # s.osx.deployment_target = '10.7'
+  s.ios.deployment_target = '5.0'
+  s.osx.deployment_target = '10.7'
 
 
   # ――― Source Location ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
@@ -101,5 +101,5 @@ Pod::Spec.new do |s|
   # s.requires_arc = true
 
   # s.xcconfig = { 'HEADER_SEARCH_PATHS' => 'src' }
-  s.compiler_flags = '-O2', '-Wall', '-Wno-unused', '-Wno-unknown-pragmas', '-DNDEBUG', '-DCRYPTOPP_DISABLE_ASM', '-DCRYPTOPP_DISABLE_SSE2', '-MMD', '-MT', 'dependencies'
+  s.compiler_flags = '-O2', '-DNDEBUG', '-DCRYPTOPP_DISABLE_ASM', '-DCRYPTOPP_DISABLE_SSE2', '-MMD', '-MT', 'dependencies'
 end
