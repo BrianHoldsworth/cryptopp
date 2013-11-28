@@ -13,7 +13,7 @@
 
 @implementation CryptoRSA
 
-CryptoPP::InvertibleRSAFunction cryptoPrivateKey;
+CryptoPP::RSA::PrivateKey cryptoPrivateKey;
 
 - (id)init
 {
@@ -25,8 +25,8 @@ CryptoPP::InvertibleRSAFunction cryptoPrivateKey;
 - (void)updatePublicKeyFromKey
 {
     CryptoPP::ByteQueue q;
-    CryptoPP::RSAFunction pub(cryptoPrivateKey);
-    pub.DEREncodePublicKey(q);
+    CryptoPP::RSA::PublicKey pub(cryptoPrivateKey);
+    pub.Save(q);
     const int keySz = q.MaxRetrievable();
     byte* rawKey = new byte[keySz];
     q.Get(rawKey, keySz);
@@ -41,10 +41,10 @@ CryptoPP::InvertibleRSAFunction cryptoPrivateKey;
     CryptoPP::AutoSeededRandomPool rng;
     cryptoPrivateKey.Initialize(rng, keySizeBits);
     
-    // Place the keys in an NSData object with DER encoding
+    // Place the keys in an NSData object
     // private key first
     CryptoPP::ByteQueue q;
-    cryptoPrivateKey.DEREncode(q);
+    cryptoPrivateKey.Save(q);
     int keySz = q.MaxRetrievable();
     byte *rawKey = new byte[keySz];
     q.Get(rawKey, keySz);
@@ -62,11 +62,11 @@ CryptoPP::InvertibleRSAFunction cryptoPrivateKey;
     _publicKey = nil;
     _privateKey = [NSData dataWithData:privateKeyValue];
     
-    // Load the key value as raw DER bytes
+    // Load the key value as raw bytes
     CryptoPP::AutoSeededRandomPool rng;
     CryptoPP::ByteQueue q;
     q.Put((const byte *)[_privateKey bytes], [_privateKey length]);
-    cryptoPrivateKey.BERDecode(q);
+    cryptoPrivateKey.Load(q);
     if (!cryptoPrivateKey.Validate(rng, 2))
         @throw [NSException exceptionWithName:@"Invlid private key" reason:@"key failed validation." userInfo:nil];
     else
@@ -79,11 +79,11 @@ CryptoPP::InvertibleRSAFunction cryptoPrivateKey;
     _privateKey = nil;
     _publicKey = [NSData dataWithData:publicKeyValue];
     
-    // Load the key value as raw DER bytes
+    // Load the key value as raw bytes
     CryptoPP::AutoSeededRandomPool rng;
     CryptoPP::ByteQueue q;
     q.Put((const byte *)[_publicKey bytes], [_publicKey length]);
-    cryptoPrivateKey.BERDecodePublicKey(q, false, q.MaxRetrievable());
+    cryptoPrivateKey.Load(q);
     if (!cryptoPrivateKey.Validate(rng, 2))
         @throw [NSException exceptionWithName:@"Invlid private key" reason:@"key failed validation." userInfo:nil];
 }
@@ -94,7 +94,7 @@ CryptoPP::InvertibleRSAFunction cryptoPrivateKey;
         return nil;
     
     CryptoPP::AutoSeededRandomPool rng;
-    CryptoPP::RSAFunction publicKey(cryptoPrivateKey);
+    CryptoPP::RSA::PublicKey publicKey(cryptoPrivateKey);
     CryptoPP::RSAES_OAEP_SHA_Encryptor encryptor(publicKey);
     CryptoPP::SecByteBlock secBlock(encryptor.CiphertextLength([plainData length]));
     encryptor.Encrypt(rng, (const byte*)[plainData bytes], [plainData length], secBlock);
