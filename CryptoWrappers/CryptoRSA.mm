@@ -27,7 +27,7 @@ CryptoPP::RSA::PrivateKey cryptoPrivateKey;
     CryptoPP::ByteQueue q;
     CryptoPP::RSA::PublicKey pub(cryptoPrivateKey);
     pub.Save(q);
-    const int keySz = q.MaxRetrievable();
+    const int keySz = (int)q.MaxRetrievable();
     byte* rawKey = new byte[keySz];
     q.Get(rawKey, keySz);
     _publicKey = [NSData dataWithBytes:rawKey length:keySz];
@@ -45,7 +45,7 @@ CryptoPP::RSA::PrivateKey cryptoPrivateKey;
     // private key first
     CryptoPP::ByteQueue q;
     cryptoPrivateKey.Save(q);
-    int keySz = q.MaxRetrievable();
+    int keySz = (int)q.MaxRetrievable();
     byte *rawKey = new byte[keySz];
     q.Get(rawKey, keySz);
     _privateKey = [NSData dataWithBytes:rawKey length:keySz];
@@ -112,4 +112,17 @@ CryptoPP::RSA::PrivateKey cryptoPrivateKey;
     decryptor.Decrypt(rng, (const byte*)[cipherData bytes], [cipherData length], secBlock.data());
     return [NSData dataWithBytes:secBlock.data() length:secBlock.size()];
 }
+
+- (NSData*)signData:(NSData*)message
+{
+    if (_privateKey == nil)
+        return nil;
+    
+    CryptoPP::AutoSeededRandomPool rng;
+    CryptoPP::RSASSA_PKCS1v15_SHA_Signer signer(cryptoPrivateKey);
+    CryptoPP::SecByteBlock secBlock(signer.MaxSignatureLength());
+    signer.SignMessage(rng, (const byte*)[message bytes], [message length], secBlock.data());
+    return [NSData dataWithBytes:secBlock.data() length:secBlock.size()];
+}
+
 @end
