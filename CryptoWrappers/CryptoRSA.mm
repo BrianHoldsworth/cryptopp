@@ -95,7 +95,7 @@ CryptoPP::RSA::PrivateKey cryptoPrivateKey;
     
     CryptoPP::AutoSeededRandomPool rng;
     CryptoPP::RSA::PublicKey publicKey(cryptoPrivateKey);
-    CryptoPP::RSAES_OAEP_SHA_Encryptor encryptor(publicKey);
+    CryptoPP::RSAES<CryptoPP::OAEP <CryptoPP::SHA256> >::Encryptor encryptor(publicKey);
     CryptoPP::SecByteBlock secBlock(encryptor.CiphertextLength([plainData length]));
     encryptor.Encrypt(rng, (const byte*)[plainData bytes], [plainData length], secBlock);
     return [NSData dataWithBytes:secBlock.data() length:secBlock.size()];
@@ -107,7 +107,7 @@ CryptoPP::RSA::PrivateKey cryptoPrivateKey;
         return nil;
 
     CryptoPP::AutoSeededRandomPool rng;
-    CryptoPP::RSAES_OAEP_SHA_Decryptor decryptor(cryptoPrivateKey);
+    CryptoPP::RSAES<CryptoPP::OAEP <CryptoPP::SHA256> >::Decryptor decryptor(cryptoPrivateKey);
     CryptoPP::SecByteBlock secBlock(decryptor.MaxPlaintextLength([cipherData length]));
     decryptor.Decrypt(rng, (const byte*)[cipherData bytes], [cipherData length], secBlock.data());
     return [NSData dataWithBytes:secBlock.data() length:secBlock.size()];
@@ -119,7 +119,7 @@ CryptoPP::RSA::PrivateKey cryptoPrivateKey;
         return nil;
     
     CryptoPP::AutoSeededRandomPool rng;
-    CryptoPP::RSASSA_PKCS1v15_SHA_Signer signer(cryptoPrivateKey);
+    CryptoPP::RSASS<CryptoPP::PKCS1v15, CryptoPP::SHA256>::Signer signer(cryptoPrivateKey);
     CryptoPP::SecByteBlock secBlock(signer.MaxSignatureLength());
     signer.SignMessage(rng, (const byte*)[message bytes], [message length], secBlock.data());
     return [NSData dataWithBytes:secBlock.data() length:secBlock.size()];
